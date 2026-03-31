@@ -1,0 +1,17 @@
+# macOS / editor
+.DS_Store
+.vscode/
+
+# Node / Next.js
+node_modules/
+.next/
+**/node_modules/
+**/.next/
+
+# Env local
+.env.local
+**/.env.local
+
+# Build/cache
+*.tsbuildinfo
+coverage/
