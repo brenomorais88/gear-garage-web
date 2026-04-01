@@ -31,7 +31,7 @@ export default async function Home({ searchParams }: HomeProps) {
   
   const filters = publicFiltersAdapter.fromUrlSearchParams(toURLSearchParams(resolvedSearchParams));
   
-  const locationEnabled = process.env.NEXT_PUBLIC_GEARGARAGE_SUPPORTS_LOCATION === "true";
+  const locationEnabled = false;
 
   let result: Awaited<ReturnType<typeof publicCatalogService.list>> | null = null;
   try {
