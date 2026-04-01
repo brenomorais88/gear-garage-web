@@ -27,13 +27,26 @@ type HomeProps = {
 };
 
 export default async function Home({ searchParams }: HomeProps) {
+  console.log("[v0] Home page renderizing");
+  
   const resolvedSearchParams = await searchParams;
+  console.log("[v0] Search params resolved:", resolvedSearchParams);
+  
   const filters = publicFiltersAdapter.fromUrlSearchParams(toURLSearchParams(resolvedSearchParams));
+  console.log("[v0] Filters adapted:", filters);
+  
   const locationEnabled = process.env.NEXT_PUBLIC_GEARGARAGE_SUPPORTS_LOCATION === "true";
+  console.log("[v0] Location enabled:", locationEnabled);
 
   let result: Awaited<ReturnType<typeof publicCatalogService.list>> | null = null;
   try {
+    console.log("[v0] Starting catalog service list request...");
     result = await publicCatalogService.list(filters);
+    console.log("[v0] Catalog list result received:", {
+      itemsCount: result?.items.length,
+      page: result?.page,
+      totalPages: result?.totalPages,
+    });
   } catch (error) {
     console.error("[GearGarage][Home] Falha ao carregar listagem publica", {
       filters,
@@ -41,6 +54,7 @@ export default async function Home({ searchParams }: HomeProps) {
       locationEnabled,
       error,
     });
+    console.log("[v0] Error caught:", error instanceof Error ? error.message : String(error));
     result = null;
   }
 
