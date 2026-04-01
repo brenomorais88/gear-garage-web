@@ -1,0 +1,13 @@
+{
+  "name": "geargarage-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "cd geargarage-front && npm run dev",
+    "build": "cd geargarage-front && npm run build",
+    "start": "cd geargarage-front && npm run start",
+    "lint": "cd geargarage-front && npm run lint",
+    "typecheck": "cd geargarage-front && npm run typecheck",
+    "test": "cd geargarage-front && npm run test"
+  }
+}
