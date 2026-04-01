@@ -72,8 +72,35 @@ export const publicVehicleDetailService = {
     const { baseUrl, vehicleDetailPathTemplate } = getPublicApiConfig();
     const detailPath = resolveDetailPath(vehicleDetailPathTemplate, listingId);
     const url = joinUrl(baseUrl, detailPath);
+    const requestParams = {
+      baseUrl,
+      pathTemplate: vehicleDetailPathTemplate,
+      detailPath,
+      listingId,
+      url,
+      method: "GET",
+    };
 
-    const response = await getJson<unknown>(url);
-    return mapDetail(response);
+    console.info("[GearGarage][publicVehicleDetailService] Request", {
+      requestParams,
+    });
+
+    try {
+      const response = await getJson<unknown>(url);
+      const mapped = mapDetail(response);
+      console.info("[GearGarage][publicVehicleDetailService] Success", {
+        requestParams,
+        anuncioId: mapped.anuncioId,
+        imagesCount: mapped.imagens.length,
+      });
+      return mapped;
+    } catch (error) {
+      console.error("[GearGarage][publicVehicleDetailService] Error", {
+        requestParams,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        error,
+      });
+      throw error;
+    }
   },
 };

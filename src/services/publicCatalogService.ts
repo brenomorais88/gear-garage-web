@@ -77,12 +77,18 @@ export const publicCatalogService = {
     const queryString = publicFiltersAdapter.toApiQueryString(filters);
     const endpoint = joinUrl(baseUrl, catalogPath);
     const url = queryString ? `${endpoint}?${queryString}` : endpoint;
-
-    console.info("[GearGarage][publicCatalogService] Request", {
+    const requestParams = {
+      baseUrl,
+      path: catalogPath,
+      endpoint,
+      queryString,
       url,
       filters,
-      baseUrl,
-      catalogPath,
+      method: "GET",
+    };
+
+    console.info("[GearGarage][publicCatalogService] Request", {
+      requestParams,
     });
 
     try {
@@ -97,8 +103,8 @@ export const publicCatalogService = {
       return mapped;
     } catch (error) {
       console.error("[GearGarage][publicCatalogService] Error", {
-        url,
-        filters,
+        requestParams,
+        errorMessage: error instanceof Error ? error.message : String(error),
         error,
       });
       throw error;
