@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageContainer } from "@/components/layout/page-container";
-import { HttpError } from "@/lib/http";
+import { logPublicRuntimeEnv } from "@/lib/env";
+import { HttpError, serializeFetchError } from "@/lib/http";
 import { publicVehicleDetailService } from "@/services/publicVehicleDetailService";
 import { notFound } from "next/navigation";
 import { StoreInfoCard } from "@/components/detail/StoreInfoCard";
@@ -42,7 +43,11 @@ export async function generateMetadata({ params }: DetailPageProps): Promise<Met
         images: [{ url: image, alt: title }],
       },
     };
-  } catch {
+  } catch (error) {
+    console.warn("[GearGarage][DetailPage] generateMetadata fallback", {
+      id,
+      serializedError: serializeFetchError(error),
+    });
     return {
       title: "Detalhe do veiculo",
       description: "Informacoes publicas do anuncio no GearGarage.",
@@ -60,6 +65,12 @@ export default async function DetailPage({ params }: DetailPageProps) {
     if (error instanceof HttpError && error.status === 404) {
       notFound();
     }
+    logPublicRuntimeEnv("DetailPage catch (non-404)");
+    console.error("[GearGarage][DetailPage] Falha ao carregar detalhe", {
+      id,
+      serializedError: serializeFetchError(error),
+      error,
+    });
     throw error;
   }
 

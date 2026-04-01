@@ -1,6 +1,15 @@
 export type SearchParamValue = string | string[] | undefined;
 export type SearchParamsRecord = Record<string, SearchParamValue>;
 
+/** For mergeQuery / listing controls; works with URLSearchParams and Next.js ReadonlyURLSearchParams. */
+export function searchParamsLikeToRecord(params: Pick<URLSearchParams, "forEach">): SearchParamsRecord {
+  const record: SearchParamsRecord = {};
+  params.forEach((value, key) => {
+    record[key] = value;
+  });
+  return record;
+}
+
 export function toURLSearchParams(searchParams: SearchParamsRecord): URLSearchParams {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(searchParams)) {
