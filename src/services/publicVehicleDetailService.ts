@@ -1,5 +1,5 @@
-import { getPublicApiConfig } from "@/lib/env";
-import { getJson, joinUrl } from "@/lib/http";
+import { getPublicApiConfig, logPublicRuntimeEnv } from "@/lib/env";
+import { getJson, joinUrl, serializeFetchError } from "@/lib/http";
 import { publicImageResolver } from "@/services/publicImageResolver";
 import { publicStoreInfoMapper } from "@/services/publicStoreInfoMapper";
 import type { PublicVehicleDetail, VehicleType } from "@/types/public-api";
@@ -69,7 +69,26 @@ function mapDetail(payload: unknown): PublicVehicleDetail {
 
 export const publicVehicleDetailService = {
   async getByListingId(listingId: string): Promise<PublicVehicleDetail> {
-    const { baseUrl, vehicleDetailPathTemplate } = getPublicApiConfig();
+    console.info("[GearGarage][publicVehicleDetailService] getByListingId entered (before getPublicApiConfig)", {
+      listingId,
+    });
+
+    let baseUrl: string;
+    let vehicleDetailPathTemplate: string;
+    try {
+      const config = getPublicApiConfig();
+      baseUrl = config.baseUrl;
+      vehicleDetailPathTemplate = config.vehicleDetailPathTemplate;
+    } catch (configError) {
+      logPublicRuntimeEnv("publicVehicleDetailService.getByListingId — getPublicApiConfig failed");
+      console.error("[GearGarage][publicVehicleDetailService] getPublicApiConfig error", {
+        listingId,
+        serializedError: serializeFetchError(configError),
+        configError,
+      });
+      throw configError;
+    }
+
     const detailPath = resolveDetailPath(vehicleDetailPathTemplate, listingId);
     const url = joinUrl(baseUrl, detailPath);
     const requestParams = {
@@ -97,6 +116,7 @@ export const publicVehicleDetailService = {
     } catch (error) {
       console.error("[GearGarage][publicVehicleDetailService] Error", {
         requestParams,
+        serializedError: serializeFetchError(error),
         errorMessage: error instanceof Error ? error.message : String(error),
         error,
       });

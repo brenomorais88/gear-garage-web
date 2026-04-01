@@ -1,5 +1,5 @@
-import { getPublicApiConfig } from "@/lib/env";
-import { getJson, joinUrl } from "@/lib/http";
+import { getPublicApiConfig, logPublicRuntimeEnv } from "@/lib/env";
+import { getJson, joinUrl, serializeFetchError } from "@/lib/http";
 import { publicFiltersAdapter } from "@/services/publicFiltersAdapter";
 import { publicImageResolver } from "@/services/publicImageResolver";
 import type { PublicCatalogFilters, PublicCatalogItem, PublicCatalogResult } from "@/types/public-api";
@@ -73,7 +73,25 @@ function mapCatalogResponse(payload: unknown): PublicCatalogResult {
 
 export const publicCatalogService = {
   async list(filters: PublicCatalogFilters): Promise<PublicCatalogResult> {
-    const { baseUrl, catalogPath } = getPublicApiConfig();
+    console.info("[GearGarage][publicCatalogService] list() entered (before getPublicApiConfig)", {
+      filters,
+    });
+
+    let baseUrl: string;
+    let catalogPath: string;
+    try {
+      const config = getPublicApiConfig();
+      baseUrl = config.baseUrl;
+      catalogPath = config.catalogPath;
+    } catch (configError) {
+      logPublicRuntimeEnv("publicCatalogService.list — getPublicApiConfig failed");
+      console.error("[GearGarage][publicCatalogService] getPublicApiConfig error", {
+        filters,
+        serializedError: serializeFetchError(configError),
+        configError,
+      });
+      throw configError;
+    }
     const queryString = publicFiltersAdapter.toApiQueryString(filters);
     const endpoint = joinUrl(baseUrl, catalogPath);
     const url = queryString ? `${endpoint}?${queryString}` : endpoint;
@@ -104,6 +122,7 @@ export const publicCatalogService = {
     } catch (error) {
       console.error("[GearGarage][publicCatalogService] Error", {
         requestParams,
+        serializedError: serializeFetchError(error),
         errorMessage: error instanceof Error ? error.message : String(error),
         error,
       });
