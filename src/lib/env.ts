@@ -1,17 +1,9 @@
 const PUBLIC_CATALOG_PATH = "/garage/public/catalog";
 const PUBLIC_VEHICLE_DETAIL_PATH_TEMPLATE = "/garage/public/catalog/{id}";
 
-function getRequiredEnv(name: "NEXT_PUBLIC_GEARGARAGE_API_BASE_URL"): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`Missing required env var: ${name}`);
-  }
-  return value;
-}
-
 /**
- * Logs how public env vars look at runtime (Vercel injects these into the Node process).
- * Safe to call from Server Components, instrumentation, or services — never runs in the browser bundle for RSC data path.
+ * Logs how public env vars look at runtime.
+ * On the server, Vercel injects vars into the Node process; in the browser, only NEXT_PUBLIC_* are available.
  */
 export function logPublicRuntimeEnv(phase: string): void {
   const base = process.env.NEXT_PUBLIC_GEARGARAGE_API_BASE_URL;
@@ -35,8 +27,14 @@ export function logPublicRuntimeEnv(phase: string): void {
 }
 
 export function getPublicApiConfig() {
+  // Must use a static `process.env.NEXT_PUBLIC_*` reference so Next inlines it in the
+  // client bundle. Dynamic access `process.env[name]` is left undefined in the browser.
+  const baseUrl = process.env.NEXT_PUBLIC_GEARGARAGE_API_BASE_URL;
+  if (!baseUrl) {
+    throw new Error("Missing required env var: NEXT_PUBLIC_GEARGARAGE_API_BASE_URL");
+  }
   return {
-    baseUrl: getRequiredEnv("NEXT_PUBLIC_GEARGARAGE_API_BASE_URL"),
+    baseUrl,
     catalogPath: PUBLIC_CATALOG_PATH,
     vehicleDetailPathTemplate: PUBLIC_VEHICLE_DETAIL_PATH_TEMPLATE,
   };

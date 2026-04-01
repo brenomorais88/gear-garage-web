@@ -72,7 +72,7 @@ function mapCatalogResponse(payload: unknown): PublicCatalogResult {
 }
 
 export const publicCatalogService = {
-  async list(filters: PublicCatalogFilters): Promise<PublicCatalogResult> {
+  async list(filters: PublicCatalogFilters, init?: RequestInit): Promise<PublicCatalogResult> {
     console.info("[GearGarage][publicCatalogService] list() entered (before getPublicApiConfig)", {
       filters,
     });
@@ -110,7 +110,7 @@ export const publicCatalogService = {
     });
 
     try {
-      const response = await getJson<unknown>(url);
+      const response = await getJson<unknown>(url, init);
       const mapped = mapCatalogResponse(response);
       console.info("[GearGarage][publicCatalogService] Success", {
         page: mapped.page,
