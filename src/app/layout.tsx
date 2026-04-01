@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
 import { PortalShell } from "@/components/layout/portal-shell";
 import "./globals.css";
 
@@ -23,6 +24,7 @@ export default function RootLayout({
     <html lang="pt-BR" className="h-full antialiased">
       <body className="min-h-full bg-brand-white text-brand-black">
         <PortalShell>{children}</PortalShell>
+        <Analytics />
       </body>
     </html>
   );
