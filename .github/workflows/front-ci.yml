@@ -1,85 +1,18 @@
-name: Frontend - Feature PR + CI
+name: Frontend CI
 
 on:
   push:
-    branches-ignore:
+    branches:
+      - develop
       - main
+      - feature/**
+  pull_request:
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
-  create-pr-and-test:
-    if: startsWith(github.ref, 'refs/heads/feature/')
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # 1) Criar (ou reutilizar) PR feature/* -> develop
-      - name: Create or reuse PR from feature -> develop
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const branchRef = context.ref; // ex: refs/heads/feature/minha-feature
-            const branch = branchRef.replace('refs/heads/', '');
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-
-            core.info(`Branch atual: ${branch}`);
-
-            const { data: prs } = await github.rest.pulls.list({
-              owner,
-              repo,
-              state: 'open',
-              head: `${owner}:${branch}`,
-              base: 'develop'
-            });
-
-            if (prs.length > 0) {
-              core.info(`PR já existe: #${prs[0].number}`);
-            } else {
-              const title = `Feature: ${branch.replace('feature/', '')}`;
-              const body = 'PR automático criado pelo GitHub Actions a partir de push na branch de feature.';
-              const { data: pr } = await github.rest.pulls.create({
-                owner,
-                repo,
-                head: branch,
-                base: 'develop',
-                title,
-                body
-              });
-              core.info(`PR criado: #${pr.number}`);
-            }
-
-      # 2) Setup Node
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
-
-      # 3) Instalar dependências
-      - name: Install dependencies
-        run: npm ci
-        # Se não tiver package-lock.json, troque por:
-        # run: npm install
-
-      # 4) Rodar testes
-      # - name: Run tests
-      #   run: npm test
-        # Se ainda não tiver testes configurados, pode comentar essa etapa temporariamente.
-
-      # 5) Build de produção
-      - name: Build frontend
-        run: npm run build
-
-  develop-to-main-pr:
-    if: github.ref == 'refs/heads/develop'
+  quality-and-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -89,42 +22,21 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run typecheck
+        run: npm run typecheck
+
+      - name: Run unit tests
+        run: npm run test
+
       - name: Build frontend
         run: npm run build
-
-      - name: Create or reuse PR from develop -> main
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-
-            const { data: prs } = await github.rest.pulls.list({
-              owner,
-              repo,
-              state: 'open',
-              head: `${owner}:develop`,
-              base: 'main'
-            });
-
-            if (prs.length > 0) {
-              core.info(`PR develop -> main já existe: #${prs[0].number}`);
-            } else {
-              const { data: pr } = await github.rest.pulls.create({
-                owner,
-                repo,
-                head: 'develop',
-                base: 'main',
-                title: 'Release: develop -> main',
-                body: 'PR automático criado após merge na develop e build aprovado no front-ci.'
-              });
-              core.info(`PR develop -> main criado: #${pr.number}`);
-            }
