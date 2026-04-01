@@ -1,9 +1,0 @@
-<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="800" fill="#F4F4F5"/>
-  <rect x="120" y="180" width="960" height="440" rx="24" fill="#23262F"/>
-  <path d="M270 470C270 432.444 300.444 402 338 402H862C899.556 402 930 432.444 930 470V496H270V470Z" fill="#B70000"/>
-  <circle cx="388" cy="530" r="44" fill="#040404"/>
-  <circle cx="812" cy="530" r="44" fill="#040404"/>
-  <text x="600" y="336" text-anchor="middle" fill="#FFFFFF" font-size="42" font-family="Arial, sans-serif">GearGarage</text>
-  <text x="600" y="378" text-anchor="middle" fill="#FFFFFF" font-size="24" font-family="Arial, sans-serif">Imagem indisponivel</text>
-</svg>
