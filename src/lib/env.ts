@@ -1,10 +1,7 @@
-const requiredVars = [
-  "NEXT_PUBLIC_GEARGARAGE_API_BASE_URL",
-  "NEXT_PUBLIC_GEARGARAGE_PUBLIC_CATALOG_PATH",
-  "NEXT_PUBLIC_GEARGARAGE_PUBLIC_VEHICLE_DETAIL_PATH",
-] as const;
+const PUBLIC_CATALOG_PATH = "/garage/public/catalog";
+const PUBLIC_VEHICLE_DETAIL_PATH_TEMPLATE = "/garage/public/catalog/{id}";
 
-function getRequiredEnv(name: (typeof requiredVars)[number]): string {
+function getRequiredEnv(name: "NEXT_PUBLIC_GEARGARAGE_API_BASE_URL"): string {
   const value = process.env[name];
   if (!value) {
     throw new Error(`Missing required env var: ${name}`);
@@ -13,15 +10,9 @@ function getRequiredEnv(name: (typeof requiredVars)[number]): string {
 }
 
 export function getPublicApiConfig() {
-  // Reads every required env key at runtime and keeps lint strict.
-  const resolved = Object.fromEntries(requiredVars.map((name) => [name, getRequiredEnv(name)])) as Record<
-    (typeof requiredVars)[number],
-    string
-  >;
-
   return {
-    baseUrl: resolved.NEXT_PUBLIC_GEARGARAGE_API_BASE_URL,
-    catalogPath: resolved.NEXT_PUBLIC_GEARGARAGE_PUBLIC_CATALOG_PATH,
-    vehicleDetailPathTemplate: resolved.NEXT_PUBLIC_GEARGARAGE_PUBLIC_VEHICLE_DETAIL_PATH,
+    baseUrl: getRequiredEnv("NEXT_PUBLIC_GEARGARAGE_API_BASE_URL"),
+    catalogPath: PUBLIC_CATALOG_PATH,
+    vehicleDetailPathTemplate: PUBLIC_VEHICLE_DETAIL_PATH_TEMPLATE,
   };
 }
