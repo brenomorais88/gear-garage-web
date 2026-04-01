@@ -28,7 +28,9 @@ type HomeProps = {
 
 export default async function Home({ searchParams }: HomeProps) {
   const resolvedSearchParams = await searchParams;
+  
   const filters = publicFiltersAdapter.fromUrlSearchParams(toURLSearchParams(resolvedSearchParams));
+  
   const locationEnabled = process.env.NEXT_PUBLIC_GEARGARAGE_SUPPORTS_LOCATION === "true";
 
   let result: Awaited<ReturnType<typeof publicCatalogService.list>> | null = null;
